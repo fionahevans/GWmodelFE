@@ -1,0 +1,39 @@
+gwr.mixed functions
+
+gwr.basic
+  - loops through points and calls gw_reg
+
+gwr.mixed.2
+  - iterates through covariates and makes calls to gwr.q
+  - then 4 more calls to gwr.q
+
+
+gwr.mixed.trace
+  - loops through points and makes 4 calls to gwr.q
+  
+gwr.q
+  - loops through points and calls gw_reg (c++)
+  - calculates distances dMat in function, it would be quicker to only calculate
+    once at the start of gwr.mixed - which it seems to do, so we shouldn't need to here.
+  
+We need the weights for each data point, but should only need to calculat them once - at the moment,
+we recalculate them every time we run gwr.q / gwr_q
+  
+  
+Steps to making it faster:  always assume dMat is given
+	1. Write gwr.q into C++
+	     - gw.weight
+		 - adaptive weights functions
+	   Cuts to around 25% of time
+	2. Write gwr.mixed.trace in C++
+	3. Write gwr.mixed.2 in C++
+   
+# Need to edit init.c with any new functions ot be called from R!
+
+arma::vec fitted(arma::mat X, arma::mat beta)
+{
+  arma::vec fitted = sum(beta % X, 1);
+  return fitted;
+}
+
+gwr.fitted <- function(x,b) apply(x*b,1,sum)
