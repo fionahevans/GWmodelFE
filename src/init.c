@@ -48,7 +48,7 @@ extern SEXP _GWmodelFE_gw_reg_2(SEXP, SEXP, SEXP);
 extern SEXP _GWmodelFE_gwr_q(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GWmodelFE_e_vec(SEXP, SEXP);
 extern SEXP _GWmodelFE_gwr_mixed_trace(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
-extern SEXP _GWmodelFE_gwr_mixed_2(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
+extern SEXP _GWmodelFE_gwr_mixed_2(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_GWmodelFE_AICc",              (DL_FUNC) &_GWmodelFE_AICc,              4},
@@ -95,7 +95,7 @@ static const R_CallMethodDef CallEntries[] = {
 	{"_GWmodelFE_gwr_q",             (DL_FUNC) &_GWmodelFE_gwr_q,              6},
 	{"_GWmodelFE_e_vec",             (DL_FUNC) &_GWmodelFE_e_vec,              2},
 	{"_GWmodelFE_gwr_mixed_trace",   (DL_FUNC) &_GWmodelFE_gwr_mixed_trace,    7},
-	{"_GWmodelFE_gwr_mixed_2",       (DL_FUNC) &_GWmodelFE_gwr_mixed_2,        7},
+	{"_GWmodelFE_gwr_mixed_2",       (DL_FUNC) &_GWmodelFE_gwr_mixed_2,        8},
     {NULL, NULL, 0}
 };
 

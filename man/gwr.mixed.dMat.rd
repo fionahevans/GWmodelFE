@@ -6,7 +6,7 @@ This function implements mixed (semiparametric) GWR
 \usage{
 gwr.mixed.dMat(formula, data, fixed.vars,
                      intercept.fixed=FALSE, bw, diagnostic=T, kernel="bisquare", 
-                     adaptive=FALSE, dMat)
+                     adaptive=FALSE, dMat, dMat.rp)
 }
 \arguments{
   \item{formula}{Regression model formula of a \link{formula} object }
@@ -28,6 +28,7 @@ gwr.mixed.dMat(formula, data, fixed.vars,
                 boxcar: wgt=1 if dist < bw, wgt=0 otherwise}
   \item{adaptive}{if TRUE calculate an adaptive kernel where the bandwidth (bw) corresponds to the number of nearest neighbours (i.e. adaptive distance); default is FALSE, where a fixed kernel is found (bandwidth is a fixed distance)}
   \item{dMat}{a pre-specified distance matrix, it can be calculated by the function \code{\link{gw.dist}}}
+  \item{dMat.rp}{a pre-specified distance matrix for regression.points, it can be calculated by the function \code{\link{gw.dist}}}
 }
 \value{
 A list of class \dQuote{mgwr}:

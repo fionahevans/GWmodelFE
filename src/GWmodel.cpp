@@ -923,7 +923,7 @@ arma::vec gw_reg_2(arma::mat x, arma::vec y, arma::vec w)
 
 // C++ version of gwr.q, used in gwr.mixed
 // [[Rcpp::export]]
-arma::mat gwr_q(arma::mat x, arma::vec y,  
+arma::mat gwr_q(arma::mat x, arma::vec y, 
                 arma::mat dMat, double bw, std::string kernel, bool adaptive)
 {
   // loc and out.loc only used to create distances
@@ -987,7 +987,8 @@ double gwr_mixed_trace(arma::mat x1, arma::mat x2, arma::vec y,
 
 // [[Rcpp::export]]
 List gwr_mixed_2(arma::mat x1, arma::mat x2, arma::vec y, 
-                       arma::mat dMat, double bw, std::string kernel, bool adaptive){
+                       arma::mat dMat, arma::mat dMat_rp,
+                       double bw, std::string kernel, bool adaptive){
   int i;
   int n = x1.n_rows;
   int nc2 = x2.n_cols;
@@ -1005,9 +1006,10 @@ List gwr_mixed_2(arma::mat x1, arma::mat x2, arma::vec y,
   
   mtemp = gwr_q(x1, y, dMat, bw, kernel, adaptive);
   y2 = y - fitted(x1, mtemp);
-  
   model2 = gwr_q(x3, y2, dMat, 100000, "boxcar", true);
-  model1 = gwr_q(x1, y-fitted(x2, model2), dMat, bw, kernel, adaptive);
+  
+  model1 = gwr_q(x1, y-fitted(x2, model2), dMat_rp, bw, kernel, adaptive);
+  model2 = gwr_q(x3, y2, dMat_rp, 100000, "boxcar", true);
   
   return List::create(
     Named("local") = model1,

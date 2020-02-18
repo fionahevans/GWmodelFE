@@ -264,6 +264,29 @@ res1 <- GWmodelFE::gwr.mixed.dMat(yield ~ rate,
                              adaptive = FALSE,
                              dMat = DMdat)
 
+# Check results are the same (with regression.points)
+DMdatR <- GWmodel::gw.dist(dp.locat=coordinates(dat), rp.locat=coordinates(dat)[1:100,])
+
+res0 <- GWmodel::gwr.mixed(yield ~ rate, 
+                           data = dat, 
+                           regression.points = coordinates(dat)[1:100,],
+                           bw = 4.5,
+                           fixed.vars = "rate",
+                           kernel = "gaussian",
+                           adaptive = FALSE,
+                           diagnostic = T,
+                           dMat = DMdatR)
+
+res1 <- GWmodelFE::gwr.mixed.dMat(yield ~ rate, 
+                                  data = dat, 
+                                  regression.points = coordinates(dat)[1:100,],
+                                  bw = 4.5,
+                                  fixed.vars = "rate",
+                                  kernel = "gaussian",
+                                  adaptive = FALSE,
+                                  dMat = DMdat,
+                                  dMat.rp = DMdatR)
+
 # Benchmark
 microbenchmark(
   GWmodel::gwr.mixed(yield ~ rate, data = dat,bw = 4.5, fixed.vars = "rate",

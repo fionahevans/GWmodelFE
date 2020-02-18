@@ -1,7 +1,9 @@
-gwr.mixed.dMat <- function(formula, data, fixed.vars,intercept.fixed = FALSE, bw, diagnostic=T,
-             kernel="bisquare", adaptive=FALSE, dMat)
+gwr.mixed.dMat <- function(formula, data, fixed.vars, 
+                           regression.points,
+                           intercept.fixed = FALSE, bw, diagnostic=T,
+                           kernel="bisquare", adaptive=FALSE, dMat, dMat.rp)
 {
-  ## Don't need locations if dMat is supplied
+  ## Don't need locations if dMat and dMat.rp are supplied
   ## Removed other inputs to gwr.mixed that weren't used in gwr.mixed
   ## Input diagnostic wasn't used in gwr.mixed, but is here:
   ##      if (diagnostic == F) this is now very fast
@@ -16,6 +18,28 @@ gwr.mixed.dMat <- function(formula, data, fixed.vars,intercept.fixed = FALSE, bw
   
   if (diagnostic) hatmatrix <- T
   else hatmatrix <- F
+  
+  if (missing(dMat.rp)) {
+    dMat.rp <- dMat
+  }
+  
+  if (missing(regression.points)) {
+    rp.given <- FALSE
+    regression.points <- data
+    rp.locat <- coordinates(data)
+  }
+  else {
+    rp.given <- TRUE
+    if (is(regression.points, "Spatial")) {
+      rp.locat <- coordinates(regression.points)
+    }
+    else if (is.numeric(regression.points) && dim(regression.points)[2] == 2) 
+      rp.locat <- regression.points
+    else {
+      warning("Output locations are not packed in a Spatial object, and it has to be a two-column numeric vector")
+      rp.locat <- dp.locat
+    }
+  }
  
   ##Data points{
   if (is(data, "Spatial"))
@@ -30,6 +54,7 @@ gwr.mixed.dMat <- function(formula, data, fixed.vars,intercept.fixed = FALSE, bw
   }
   #########Distance matrix is given or not
   dp.n <- nrow(dp.locat)
+  rp.n <- nrow(rp.locat)
   if (missing(dMat))
   {
     cat("Error: distance matrix required!")
@@ -39,9 +64,12 @@ gwr.mixed.dMat <- function(formula, data, fixed.vars,intercept.fixed = FALSE, bw
   {
     DM.given<-T
     dim.dMat<-dim(dMat)
-    if (dim.dMat[1]!=dp.n)
+    dim.dMat.rp<-dim(dMat.rp)
+    if (dim.dMat[1] != dp.n || dim.dMat[2] != dp.n)
        stop("Dimensions of dMat are not correct")
   }
+  if (dim.dMat.rp[1] != dp.n || dim.dMat.rp[2] != rp.n)
+    stop("Dimensions of dMat.rp are not correct")
   ####################
   ######Extract the data frame
    mf <- match.call(expand.dots = FALSE)
@@ -76,10 +104,9 @@ gwr.mixed.dMat <- function(formula, data, fixed.vars,intercept.fixed = FALSE, bw
   if (!is.null(x2)) x2 <- as.matrix(x2, nrow = dp.n)
   colnames(x1) <- colnames(x)[-idx.fixed] # x1 = variable
   colnames(x2) <- colnames(x)[idx.fixed]  # x2 = fixed
-  #y <- as.matrix(y, nrow = dp.n)
   
    model <- gwr.mixed.2.fast(x1, x2, y, adaptive=adaptive, bw=bw,
-                        kernel=kernel, dMat) 
+                        kernel=kernel, dMat=dMat, dMat.rp=dMat.rp) 
    res <- list()
    res$local <- model$local 
    res$global <- apply(model$global,2,mean,na.rm=T) 
@@ -87,7 +114,7 @@ gwr.mixed.dMat <- function(formula, data, fixed.vars,intercept.fixed = FALSE, bw
    colnames(mgwr.df) <- c(paste(colnames(x1), "L", sep="_"), paste(colnames(x2), "F", sep="_"))
    griddedObj <- F
     
-   SDF <- SpatialPointsDataFrame(coords=dp.locat, data=mgwr.df, proj4string=CRS(p4s), match.ID=F)
+   SDF <- SpatialPointsDataFrame(coords=rp.locat, data=mgwr.df, proj4string=CRS(p4s), match.ID=F)
    
    res$SDF <- SDF
    if (hatmatrix)
@@ -96,10 +123,9 @@ gwr.mixed.dMat <- function(formula, data, fixed.vars,intercept.fixed = FALSE, bw
       edf <- gwr.mixed.trace.fast(x1, x2, y, adaptive=adaptive, bw=bw,
                               kernel=kernel, dMat=dMat)
       model2 <- gwr.mixed.2.fast(x1, x2, y, adaptive=adaptive, bw=bw, 
-                             kernel=kernel, dMat=dMat)
+                             kernel=kernel, dMat=dMat, dMat.rp=dMat)
       
-      # r.ss <- sum((y - gwr.fitted(model2$global, x2) - gwr.fitted(model2$local,x1))^2)
-      r.ss <- sum((y - gwr.fitted(model$global, x2) - gwr.fitted(model$local,x1))^2)
+      r.ss <- sum((y - gwr.fitted(model2$global, x2) - gwr.fitted(model2$local, x1))^2)
       n1 <- length(y)
       sigma.aic <- r.ss / n1
       aic <- log(sigma.aic*2*pi) + 1 + 2*(edf + 1)/(n1 - edf - 2)
@@ -108,7 +134,7 @@ gwr.mixed.dMat <- function(formula, data, fixed.vars,intercept.fixed = FALSE, bw
       res$df.used <- edf
       res$r.ss <- r.ss
    }
-   GW.arguments<-list(formula=formula,rp.given=F,hatmatrix=hatmatrix,bw=bw, 
+   GW.arguments<-list(formula=formula,rp.given=rp.given,hatmatrix=hatmatrix,bw=bw, 
                        kernel=kernel,adaptive=adaptive, p=2, theta=0, longlat=F,
                       DM.given=T, diagnostic=T)
    res$GW.arguments <- GW.arguments
@@ -332,9 +358,9 @@ gwr.mixed.2 <- function(x1, x2, y, loc, out.loc, adaptive=F, bw=sqrt(var(loc[,1]
 }
 
 gwr.mixed.2.fast <- function(x1, x2, y, adaptive=F, bw=sqrt(var(loc[,1])+var(loc[,2])),
-                            kernel="bisquare", dMat)
+                            kernel="bisquare", dMat, dMat.rp)
 { 
-  gwr_mixed_2(x1, x2, y, dMat, bw, kernel, adaptive)
+  gwr_mixed_2(x1, x2, y, dMat, dMat.rp, bw, kernel, adaptive)
 }
 
 #
@@ -520,7 +546,7 @@ gwr.q.fast <- function(x, y, adaptive=F, bw=sqrt(var(loc[,1])+var(loc[,2])),
   }
   
   else {
-    betas <- gwr_q(x,  y, dMat, bw, kernel, adaptive)
+    betas <- gwr_q(x,  y, loc, out.loc, dMat, bw, kernel, adaptive)
   }
     
   colnames(betas) <- colnames(x)

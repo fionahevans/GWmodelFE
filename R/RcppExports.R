@@ -185,7 +185,7 @@ gwr_mixed_trace <- function(x1, x2, y, dMat, bw, kernel, adaptive) {
     .Call(`_GWmodelFE_gwr_mixed_trace`, x1, x2, y, dMat, bw, kernel, adaptive)
 }
 
-gwr_mixed_2 <- function(x1, x2, y, dMat, bw, kernel, adaptive) {
-    .Call(`_GWmodelFE_gwr_mixed_2`, x1, x2, y, dMat, bw, kernel, adaptive)
+gwr_mixed_2 <- function(x1, x2, y, dMat, dMat_rp, bw, kernel, adaptive) {
+    .Call(`_GWmodelFE_gwr_mixed_2`, x1, x2, y, dMat, dMat_rp, bw, kernel, adaptive)
 }
 
