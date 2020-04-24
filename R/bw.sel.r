@@ -91,7 +91,12 @@ bw.gwr<-function(formula, data, approach="CV",kernel="bisquare",adaptive=FALSE, 
        bw <- gold(gwr.cv,lower,upper,adapt.bw=adaptive,x,y,kernel,adaptive, dp.locat, p, theta, longlat,dMat)
     else if(approach=="aic"||approach=="AIC"||approach=="AICc")
        bw<-gold(gwr.aic,lower,upper,adapt.bw=adaptive,x,y,kernel,adaptive, dp.locat, p, theta, longlat,dMat)    
-   # bw<-NA
+    # FE
+    else if(approach=="bic"||approach=="BIC")
+      bw<-gold(gwr.bic,lower,upper,adapt.bw=adaptive,x,y,kernel,adaptive, dp.locat, p, theta, longlat,dMat)    
+    
+    
+    # bw<-NA
 #    if(approach=="cv"||approach=="CV")
 #       bw <- optimize(bw.cv,lower=lower,upper=upper,maximum=FALSE,X=x,Y=y,kernel=kernel,
 #       adaptive=adaptive, dp.locat=dp.locat, p=p, theta=theta, longlat=longlat,dMat=dMat,tol=.Machine$double.eps^0.25)
@@ -306,6 +311,72 @@ gwr.aic<-function(bw, X, Y, kernel="bisquare",adaptive=FALSE, dp.locat, p=2, the
       cat("Fixed bandwidth:", bw, "AICc value:", AICc, "\n")
   }
   AICc
+}
+
+####Calculate the BIC with a given bandwidth
+##Author: Fiona Evans
+gwr.aic<-function(bw, X, Y, kernel="bisquare",adaptive=FALSE, dp.locat, p=2, theta=0, longlat=F,dMat, verbose=T)
+{
+  dp.n<-length(dp.locat[,1])
+  var.n <- ncol(X)
+  #########Distance matrix is given or not
+  
+  if (is.null(dMat))
+    DM.given<-F
+  else
+  {
+    DM.given<-T
+    dim.dMat<-dim(dMat)
+    if (dim.dMat[1]!=dp.n||dim.dMat[2]!=dp.n)
+      stop ("Dimensions of dMat are not correct")
+  }
+  ############################################AIC
+  ###In this function, the whole hatmatrix is not fully calculated and only the diagonal elements are computed
+  # S<-matrix(nrow=dp.n,ncol=dp.n)
+  s_hat <- numeric(2)
+  betas <- matrix(nrow = dp.n, ncol = var.n)
+  for (i in 1:dp.n)
+  {
+    if (DM.given)
+      dist.vi<-dMat[,i]
+    else
+    {
+      dist.vi<-gw.dist(dp.locat=dp.locat, focus=i, p=p, theta=theta, longlat=longlat)
+    }
+    W.i<-gw.weight(dist.vi,bw,kernel,adaptive)
+    res<- try(gw_reg(X,Y,W.i,TRUE,i))
+    
+    if(!inherits(res, "try-error"))
+    {
+      si <- res[[2]]
+      s_hat[1] = s_hat[1] + si[i]
+      s_hat[2] = s_hat[2] + sum(tcrossprod(si))
+      betas[i,] <- res[[1]]
+    }
+    else
+    {
+      s_hat[1] <- Inf
+      s_hat[2] <- Inf
+      break
+    }  
+  }
+  
+  if (!any(is.infinite(s_hat)))
+  {
+    BIC<-BIC(Y, X, betas, s_hat)
+  }
+  else
+    BIC<-Inf
+  if(is.nan(BIC))
+    BIC <- Inf
+  if(verbose)
+  {     
+    if(adaptive)
+      cat("Adaptive bandwidth (number of nearest neighbours):", bw, "BIC value:", BIC, "\n")
+    else
+      cat("Fixed bandwidth:", bw, "BIC value:", BIC, "\n")
+  }
+  BIC
 }
 
 

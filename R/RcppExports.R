@@ -141,6 +141,10 @@ scgwr_reg <- function(x, y, bw, poly, G0, Mx0, My0, XtX, XtY, neighbour, paramet
     .Call(`_GWmodelFE_scgwr_reg`, x, y, bw, poly, G0, Mx0, My0, XtX, XtY, neighbour, parameters)
 }
 
+BIC <- function(y, x, beta, s_hat) {
+    .Call(`_GWmodelFE_BIC`, y, x, beta, s_hat)
+}
+
 box_wt_vec <- function(distv, bw) {
     .Call(`_GWmodelFE_box_wt_vec`, distv, bw)
 }

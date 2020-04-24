@@ -133,7 +133,6 @@ gwr.mixed.dMat <- function(formula, data, fixed.vars,
       aic <- log(sigma.aic*2*pi) + 1 + 2*(edf + 1)/(n1 - edf - 2)
       aic <- n1*aic
       res$aic <- aic
-      res$aic2 <- n1*log(sigma.aic) + n1*log(2*pi) + n1*((n1+edf)/(n1-2-edf))
       res$bic <- n1*log(sigma.aic) + n1*log(2*pi) + edf * log(n1)
       res$df.used <- edf
       res$r.ss <- r.ss

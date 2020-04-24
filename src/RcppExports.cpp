@@ -460,6 +460,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// BIC
+double BIC(arma::vec y, arma::mat x, arma::mat beta, arma::vec s_hat);
+RcppExport SEXP _GWmodelFE_BIC(SEXP ySEXP, SEXP xSEXP, SEXP betaSEXP, SEXP s_hatSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type s_hat(s_hatSEXP);
+    rcpp_result_gen = Rcpp::wrap(BIC(y, x, beta, s_hat));
+    return rcpp_result_gen;
+END_RCPP
+}
 // box_wt_vec
 arma::vec box_wt_vec(arma::vec distv, double bw);
 RcppExport SEXP _GWmodelFE_box_wt_vec(SEXP distvSEXP, SEXP bwSEXP) {

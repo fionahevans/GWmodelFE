@@ -38,6 +38,7 @@ extern SEXP _GWmodelFE_scgwr_loocv(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEX
 extern SEXP _GWmodelFE_scgwr_reg(SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GWmodelFE_AICc1(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GWmodelFE_gwr_diag1(SEXP, SEXP, SEXP, SEXP);
+extern SEXP _GWmodelFE_BIC(SEXP, SEXP, SEXP, SEXP);
 extern SEXP _GWmodelFE_box_wt_vec(SEXP, SEXP);
 extern SEXP _GWmodelFE_box_wt_vec_ad(SEXP, SEXP);
 extern SEXP _GWmodelFE_gau_wt_vec_ad(SEXP, SEXP);
@@ -85,6 +86,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_GWmodelFE_scgwr_reg",         (DL_FUNC) &_GWmodelFE_scgwr_reg,         11},
 	{"_GWmodelFE_AICc1",              (DL_FUNC) &_GWmodelFE_AICc1,             4},
 	{"_GWmodelFE_gwr_diag1",          (DL_FUNC) &_GWmodelFE_gwr_diag1,         4},
+	{"_GWmodelFE_BIC",               (DL_FUNC) &_GWmodelFE_BIC,                4},
 	{"_GWmodelFE_box_wt_vec",        (DL_FUNC) &_GWmodelFE_box_wt_vec,         2},
 	{"_GWmodelFE_box_wt_vec_ad",     (DL_FUNC) &_GWmodelFE_box_wt_vec_ad,      2},
 	{"_GWmodelFE_gau_wt_vec_ad",     (DL_FUNC) &_GWmodelFE_gau_wt_vec_ad,      2},
