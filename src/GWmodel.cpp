@@ -435,12 +435,13 @@ arma::vec gwr_diag(arma::vec y,arma::mat x, arma::mat beta, arma::mat S) {
 
 // [[Rcpp::export]]
 arma::vec gwr_diag1(arma::vec y, arma::mat x, arma::mat beta, arma::vec s_hat)
+// FE added return of BIC
 {
   double ss = rss(y, x, beta);
   // arma::vec s_hat = trhat2(S);
   int n = x.n_rows;
-  // arma::vec result(9);
-  arma::vec result(7);
+  // arma::vec result(7);
+  arma::vec result(8);
   double AIC = n * log(ss / n) + n * log(2 * datum::pi) + n + s_hat(0);																//AIC
   double AICc = n * log(ss / n) + n * log(2 * datum::pi) + n * ((n + s_hat(0)) / (n - 2 - s_hat(0))); //AICc
   double edf = n - 2 * s_hat(0) + s_hat(1);																														//edf
@@ -448,6 +449,9 @@ arma::vec gwr_diag1(arma::vec y, arma::mat x, arma::mat beta, arma::vec s_hat)
   double yss = sum(pow(y - mean(y), 2));																															//yss.g
   double r2 = 1 - ss / yss;
   double r2_adj = 1 - (1 - r2) * (n - 1) / (edf - 1);
+  
+  double BIC = n * log(ss / n) + n * log(2 * datum::pi) + log(n) * s_hat(0);
+    
   result(0) = AIC;
   result(1) = AICc;
   result(2) = edf;
@@ -455,6 +459,7 @@ arma::vec gwr_diag1(arma::vec y, arma::mat x, arma::mat beta, arma::vec s_hat)
   result(4) = ss;
   result(5) = r2;
   result(6) = r2_adj;
+  result(7) = BIC;
   // result(7) = s_hat(0);
   // result(8) = s_hat(1);
   return result;
@@ -750,6 +755,7 @@ void printMat(arma::mat m) {
   int p = m.n_cols;
   
   n = 10;
+  if (m.n_rows < n) n = m.n_rows;
   
   for (int i=0; i<n; i++) {
     for (int j=0; j<p; j++) {
@@ -961,6 +967,7 @@ double gwr_mixed_trace(arma::mat x1, arma::mat x2, arma::vec y,
   arma::mat mtemp, model1, model2;
   arma::mat x3(n, nc2);
   arma::vec y2(n);
+  arma::vec y3;
   arma::vec hii(n, fill::zeros);
   arma::mat m(1,n);
   double s1, s2;
@@ -970,18 +977,18 @@ double gwr_mixed_trace(arma::mat x1, arma::mat x2, arma::vec y,
     x3.col(i) = x2.col(i) - fitted(x1, mtemp);
   }
   
+  // The following works but is slow
   for (i = 0; i < n; i++) {
-    mtemp = gwr_q(x1, e_vec(i, n), dMat, bw, kernel, adaptive);
-    y2 = e_vec(i, n) - fitted(x1, mtemp);
+    mtemp = gwr_q(x1, e_vec(i, n), dMat, bw, kernel, adaptive); // length n x nc2
+    y2 = e_vec(i, n) - fitted(x1, mtemp); // length n
     model2 = gwr_q(x3, y2, dMat, 100000, "boxcar", true);
-    m.row(0) = dMat.row(i);
-    model1 = gwr_q(x1, e_vec(i, n) - fitted(x2, model2), dMat.col(i), bw, kernel, adaptive);
-    model2 = gwr_q(x3, y2, dMat.col(i), 100000, "boxcar", true);
-    s1 = fitted(x1.row(i), model1)(0);
-    s2 = fitted(x2.row(i), model2)(0);
+    y3 = e_vec(i, n) - fitted(x2, model2);
+    model1 = gwr_q(x1, y3, dMat.col(i), bw, kernel, adaptive); // 1 x 1 matrix
+    model2 = gwr_q(x3, y2, dMat.col(i), 100000, "boxcar", true); // n x nc2
+    s1 = fitted(x1.row(i), model1)(0);  // vector with one element
+    s2 = fitted(x2.row(i), model2)(0);  // vector with one element
     hii(i) = s1 + s2;
   }
-  
   return sum(hii);
 }
 

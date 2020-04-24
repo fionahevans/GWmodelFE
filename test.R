@@ -287,6 +287,14 @@ res1 <- GWmodelFE::gwr.mixed.dMat(yield ~ rate,
                                   dMat = DMdat,
                                   dMat.rp = DMdatR)
 
+GWmodelFE::gwr.mixed.AICc(yield ~ rate, 
+               data = dat,
+               bw = 4.5,
+               fixed.vars = "rate",
+               kernel = "gaussian",
+               adaptive = FALSE,
+               dMat = DMdat)
+
 # Benchmark
 microbenchmark(
   GWmodel::gwr.mixed(yield ~ rate, data = dat,bw = 4.5, fixed.vars = "rate",

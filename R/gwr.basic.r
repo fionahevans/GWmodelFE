@@ -39,6 +39,8 @@
 #Belsey-Kuh-Welsh condition number
 #Variance Inflation Factors
 #Variance decomposition proportions
+#
+# FE modified to return tr.S, tr.StS, BIC
 gwr.basic <- function(formula, data, regression.points, bw, kernel="bisquare", adaptive=FALSE, p=2, theta=0, longlat=F, dMat, F123.test=F, cv=F, W.vect=NULL)
 {
   ##Record the start time
@@ -227,7 +229,8 @@ gwr.basic <- function(formula, data, regression.points, bw, kernel="bisquare", a
     enp <- diags[4]
     gw.R2 <- diags[6]
     gwR2.adj <- diags[7]
-    GW.diagnostic <- list(RSS.gw = RSS.gw, AIC = AIC, AICc = AICc, enp = enp, edf = edf, gw.R2 = gw.R2, gwR2.adj = gwR2.adj)
+    GW.diagnostic <- list(tr.S = tr.S, tr.StS = tr.StS, BIC = diags[8], 
+                          RSS.gw = RSS.gw, AIC = AIC, AICc = AICc, enp = enp, edf = edf, gw.R2 = gw.R2, gwR2.adj = gwR2.adj)
     ######Parameters returned for F tests
     Ftests<-list()
     if(F123.test)

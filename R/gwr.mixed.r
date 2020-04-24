@@ -1,3 +1,5 @@
+
+
 gwr.mixed.dMat <- function(formula, data, fixed.vars, 
                            regression.points,
                            intercept.fixed = FALSE, bw, diagnostic=T,
@@ -121,7 +123,7 @@ gwr.mixed.dMat <- function(formula, data, fixed.vars,
    {
       gwr.fitted <- function(x,b) apply(x*b,1,sum)
       edf <- gwr.mixed.trace.fast(x1, x2, y, adaptive=adaptive, bw=bw,
-                              kernel=kernel, dMat=dMat)
+                              kernel=kernel, dMat=dMat) # tr(S)
       model2 <- gwr.mixed.2.fast(x1, x2, y, adaptive=adaptive, bw=bw, 
                              kernel=kernel, dMat=dMat, dMat.rp=dMat)
       
@@ -131,6 +133,8 @@ gwr.mixed.dMat <- function(formula, data, fixed.vars,
       aic <- log(sigma.aic*2*pi) + 1 + 2*(edf + 1)/(n1 - edf - 2)
       aic <- n1*aic
       res$aic <- aic
+      res$aic2 <- n1*log(sigma.aic) + n1*log(2*pi) + n1*((n1+edf)/(n1-2-edf))
+      res$bic <- n1*log(sigma.aic) + n1*log(2*pi) + edf * log(n1)
       res$df.used <- edf
       res$r.ss <- r.ss
    }
@@ -524,16 +528,16 @@ gwr.q <- function(x, y, loc, out.loc=loc, adaptive=F, bw=sqrt(var(loc[,1])+var(l
       dist.vi <- gw.dist(loc, out.loc, focus=i, p, theta, longlat)
 
     W.i<-gw.weight(dist.vi,bw,kernel,adaptive)
-    if (i == 1) {
-      print(class(W.i))
-      print(length(W.i))
-      print(W.i[1:10])
-    }
+ #   if (i == 1) {
+ #     print(class(W.i))
+ #     print(length(W.i))
+ #     print(W.i[1:10])
+ #   }
     gw.resi<-gw_reg(x,y,as.vector(W.i*wt2),hatmatrix=F,i)
     betas[i,]<-gw.resi[[1]]
   }
   colnames(betas) <- colnames(x)
-  print(head(betas))
+  #print(head(betas))
   betas
 }
    
@@ -552,5 +556,4 @@ gwr.q.fast <- function(x, y, adaptive=F, bw=sqrt(var(loc[,1])+var(loc[,2])),
   colnames(betas) <- colnames(x)
   betas
 }
-
 
