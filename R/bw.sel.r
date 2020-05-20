@@ -315,7 +315,7 @@ gwr.aic<-function(bw, X, Y, kernel="bisquare",adaptive=FALSE, dp.locat, p=2, the
 
 ####Calculate the BIC with a given bandwidth
 ##Author: Fiona Evans
-gwr.aic<-function(bw, X, Y, kernel="bisquare",adaptive=FALSE, dp.locat, p=2, theta=0, longlat=F,dMat, verbose=T)
+gwr.bic<-function(bw, X, Y, kernel="bisquare",adaptive=FALSE, dp.locat, p=2, theta=0, longlat=F,dMat, verbose=T)
 {
   dp.n<-length(dp.locat[,1])
   var.n <- ncol(X)

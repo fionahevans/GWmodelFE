@@ -737,7 +737,6 @@ List scgwr_reg(arma::mat x, arma::vec y, int bw, int poly, arma::mat G0, arma::m
   );
 }
 
-
 // FE EDITS BELOW BY FIONA.H.EVANS@GMAIL.COM
 
 // [[Rcpp::export]]
@@ -745,7 +744,7 @@ double BIC(arma::vec y, arma::mat x, arma::mat beta, arma::vec s_hat)
 {
   double ss = rss(y, x, beta);
   int n = x.n_rows;
-  double BIC = n * log(ss / n) + n * log(2 * datum::pi) + log(n) + s_hat(0);
+  double BIC = n * log(ss / n) + n * log(2 * datum::pi) + log(n) * s_hat(0);
   return BIC;
 }
 

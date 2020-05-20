@@ -1,3 +1,6 @@
+
+####### FE modified to allow model with ONLY intercept
+
 #########################
 ###Basic functions for GWR
 # Author: BL, edited IG
@@ -61,7 +64,7 @@ gwr.basic <- function(formula, data, regression.points, bw, kernel="bisquare", a
   else
   {
     rp.given <- TRUE
-    hatmatrix<-F
+    hatmatrix <- F
     if (is(regression.points, "Spatial"))
     {
        rp.locat<-coordinates(regression.points)
@@ -102,6 +105,10 @@ gwr.basic <- function(formula, data, regression.points, bw, kernel="bisquare", a
   mt <- attr(mf, "terms")
   y <- model.extract(mf, "response")
   x <- model.matrix(mt, mf)
+  if (ncol(x) == 0) {
+    x <- cbind(x, rep(1, nrow(x)))
+    colnames(x) <- "(Intercept)"
+  }
   var.n<-ncol(x)
   rp.n<-nrow(rp.locat)
   dp.n<-nrow(data)
@@ -269,26 +276,41 @@ gwr.basic <- function(formula, data, regression.points, bw, kernel="bisquare", a
   {
     if (is.null(W.vect))
     {
-       gwres.df<-data.frame(betas,y,yhat,residual,CV,Stud_residual,betas.SE,betas.TV,local.R2)
-       colnames(gwres.df)<-c(c(c(colnames(betas),c("y","yhat","residual","CV_Score","Stud_residual")),
-                           paste(colnames(betas), "SE", sep="_")),paste(colnames(betas), "TV", sep="_"), "Local_R2")
+      if (ncol(betas) == 0) {
+        gwres.df<<-data.frame(betas,y,yhat,residual,CV,Stud_residual,betas.SE,betas.TV,local.R2)
+        colnames(gwres.df)<<-c(c(colnames(betas),c("y","yhat","residual","CV_Score","Stud_residual")),
+                               "Local_R2")
+        
+      }
+      else {
+        gwres.df<<-data.frame(betas,y,yhat,residual,CV,Stud_residual,betas.SE,betas.TV,local.R2)
+        colnames(gwres.df)<<-c(c(c(colnames(betas),c("y","yhat","residual","CV_Score","Stud_residual")),
+                                 paste(colnames(betas), "SE", sep="_")),paste(colnames(betas), "TV", sep="_"), "Local_R2")
+      }
+      
     }
     else
     {
-       gwres.df<-data.frame(betas,y,yhat,residual,CV,Stud_residual,betas.SE,betas.TV, W.vect,local.R2)
-       colnames(gwres.df)<-c(c(c(colnames(betas),c("y","yhat","residual","CV_Score","Stud_residual")),
-                          paste(colnames(betas), "SE", sep="_")),paste(colnames(betas), "TV", sep="_"), "E_weigts","Local_R2")
+      if (ncol(betas) == 0) {
+        gwres.df<<-data.frame(betas,y,yhat,residual,CV,Stud_residual,betas.SE,betas.TV, W.vect,local.R2)
+        colnames(gwres.df)<<-c(c(colnames(betas),c("y","yhat","residual","CV_Score","Stud_residual")),
+                               "E_weigts","Local_R2")
+      }
+      else {
+        gwres.df<<-data.frame(betas,y,yhat,residual,CV,Stud_residual,betas.SE,betas.TV, W.vect,local.R2)
+        colnames(gwres.df)<<-c(c(c(colnames(betas),c("y","yhat","residual","CV_Score","Stud_residual")),
+                                 paste(colnames(betas), "SE", sep="_")),paste(colnames(betas), "TV", sep="_"), "E_weigts","Local_R2")
+      }
     }
-
   }
   else
   {
     if (is.null(W.vect))
-        gwres.df<-data.frame(betas)
+      gwres.df<-data.frame(betas)
     else
     {
-        gwres.df<-data.frame(betas, W.vect)
-        colnames(gwres.df)<- c(colnames(betas), "E_weigts")
+      gwres.df<-data.frame(betas, W.vect)
+      colnames(gwres.df)<- c(colnames(betas), "E_weigts")
     }
   }
   rownames(rp.locat)<-rownames(gwres.df)
